@@ -78,6 +78,7 @@ export const IDENTITY_CARDS = [
 export const PROJECTS = [
   {
     title: 'FinSight AI',
+    image: 'https://picsum.photos/seed/finsight-ai/1200/675',
     categoryTags: 'FINTECH • AI • FULL-STACK • PRODUCT',
     headline: 'I panic almost sold ₹34,000 in gains. No app stopped me. So I built one.',
     description:
@@ -93,6 +94,7 @@ export const PROJECTS = [
   },
   {
     title: 'CodeLens AI',
+    image: 'https://picsum.photos/seed/codelens-ai/1200/675',
     categoryTags: 'AI • RAG • FULL-STACK • DEVELOPER TOOLS',
     headline: 'Developers waste days understanding unfamiliar codebases. I built the solution.',
     description:
@@ -105,6 +107,7 @@ export const PROJECTS = [
   },
   {
     title: 'AI Asset Management System',
+    image: 'https://picsum.photos/seed/asset-mgmt-ai/1200/675',
     categoryTags: 'AI • DESKTOP • CREATIVE TOOLS • CLIENT WORK',
     headline: "Built the creative team's entire digital brain.",
     description:
@@ -117,6 +120,7 @@ export const PROJECTS = [
   },
   {
     title: 'DevOps Habit Tracker',
+    image: 'https://picsum.photos/seed/devops-tracker/1200/675',
     categoryTags: 'DEVOPS • CLOUD • FULL-STACK',
     headline: 'A MERN app wrapped in a full production DevOps pipeline.',
     description:
@@ -134,16 +138,19 @@ export const QUICK_GRID_PROJECTS = [
     title: 'Real-Time Chat App',
     tags: 'MERN • Socket.io • JWT',
     link: 'https://github.com/SiD-20s',
+    image: 'https://picsum.photos/seed/realtime-chat/800/450',
   },
   {
     title: 'File-Share',
     tags: 'Next.js • Supabase • Clerk',
     link: 'https://github.com/SiD-20s',
+    image: 'https://picsum.photos/seed/file-share-app/800/450',
   },
   {
     title: 'E-commerce',
     tags: 'React • Tailwind • PayPal',
     link: 'https://github.com/SiD-20s',
+    image: 'https://picsum.photos/seed/ecommerce-app/800/450',
   },
 ] as const
 

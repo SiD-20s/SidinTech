@@ -45,14 +45,22 @@ function ProjectEntry({
       animate={isInView ? 'visible' : 'hidden'}
       className="w-full"
     >
-      {/* 1. Full-width image placeholder — 16:9, bg-[#E8E9ED], radius 16px */}
+      {/* 1. Full-width image — 16:9, radius 16px, scale reveal + hover */}
       <div className="overflow-hidden rounded-2xl w-full" data-cursor="view">
         <motion.div
-          className="aspect-video w-full bg-[#E8E9ED]"
+          className="relative aspect-video w-full bg-[#E8E9ED] overflow-hidden"
           animate={imageScale}
           whileHover={prefersReduced ? {} : { scale: 1.03 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
-        />
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={project.image}
+            alt={project.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+        </motion.div>
       </div>
 
       {/* 2. Category tags — 11px Satoshi uppercase, ink 40 % */}
@@ -159,10 +167,18 @@ function QuickGridItem({
       {/* Image — hover scale 1.03 */}
       <div className="overflow-hidden rounded-xl">
         <motion.div
-          className="aspect-video w-full bg-[#E8E9ED]"
+          className="relative aspect-video w-full bg-[#E8E9ED] overflow-hidden"
           whileHover={prefersReduced ? {} : { scale: 1.03 }}
           transition={{ duration: 0.4, ease: EASE_OUT }}
-        />
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={item.image}
+            alt={item.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+        </motion.div>
       </div>
 
       {/* Tags */}
