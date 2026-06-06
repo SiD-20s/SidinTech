@@ -29,7 +29,12 @@ export default function About() {
         scrollTrigger: {
           trigger: '[data-gsap-about]',
           pin: true,
-          scrub: 1,
+          // anticipatePin prevents the section from feeling "stuck" on pin
+          // entry/exit when Lenis hasn't fully caught up to native scroll
+          anticipatePin: 1,
+          // scrub: 0.5 instead of 1 — Lenis already adds ~1.2 s of easing,
+          // so a scrub lag of 1 creates ~2 s total lag which feels sluggish
+          scrub: 0.5,
           end: () => '+=' + panels.offsetWidth,
           invalidateOnRefresh: true,
         },

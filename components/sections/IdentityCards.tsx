@@ -45,6 +45,9 @@ export default function IdentityCards() {
         start: `${index * 20}% top`,
         end: `${(index + 1) * 20}% top`,
         scrub: true,
+        // Recalculate trigger positions if GSAP refreshes its layout
+        // (e.g., when About's pinSpacer is added/removed)
+        invalidateOnRefresh: true,
         onUpdate(self) {
           gsap.set(card, {
             yPercent: -100 * self.progress,
