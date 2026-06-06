@@ -39,9 +39,10 @@ export default function FloatingNav({ visible, activeSection }: FloatingNavProps
 
   const handleNavClick = (href: string) => {
     setMenuOpen(false)
-    // Lenis smooth scroll to target; fallback to native
+    // Use 'instant' — Lenis intercepts this and applies its own smooth easing.
+    // 'smooth' here would stack CSS native smoothing on top of Lenis → lag.
     const target = document.querySelector(href)
-    target?.scrollIntoView({ behavior: 'smooth' })
+    target?.scrollIntoView({ behavior: 'instant' })
   }
 
   const activePillarColour = SECTION_PILLAR[activeSection] ?? '#0D0D0D'

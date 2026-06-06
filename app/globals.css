@@ -46,8 +46,12 @@
 }
 
 /* ─── Base styles ─────────────────────────────────────────────────────────── */
+/* scroll-behavior: smooth intentionally removed — Lenis owns all smooth
+   scrolling. Having both active causes CSS to intercept every Lenis
+   scrollTo() call and apply a 5s native smooth transition on top,
+   creating the "5-second lag then fast jump" symptom. */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
