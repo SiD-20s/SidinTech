@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* ─── Design token: colours ───────────────────────────────────────────────── */
+@theme {
+  --color-tech:     #00A8FF;
+  --color-finance:  #00C896;
+  --color-design:   #9B6DFF;
+  --color-product:  #FFB830;
+  --color-business: #FF6B6B;
+  --color-ink:      #0D0D0D;
+  --color-canvas:   #F0F1F5;
+}
+
+/* ─── Design token: fonts ─────────────────────────────────────────────────── */
+@theme inline {
+  --font-syne:    var(--font-syne-var),    Syne,            sans-serif;
+  --font-satoshi: var(--font-satoshi-var), Satoshi,         sans-serif;
+  --font-mono:    var(--font-jetbrains-var),'JetBrains Mono',monospace;
+}
+
+/* ─── CSS custom properties (used in arbitrary inline styles) ─────────────── */
+:root {
+  --canvas:   #F0F1F5;
+  --ink:      #0D0D0D;
+  --tech:     #00A8FF;
+  --finance:  #00C896;
+  --design:   #9B6DFF;
+  --product:  #FFB830;
+  --business: #FF6B6B;
+}
+
+/* ─── Custom cursor ───────────────────────────────────────────────────────── */
+@media (hover: hover) {
+  * { cursor: none; }
+}
+@media (hover: none) {
+  * { cursor: auto; }
+}
+
+/* VIEW label inside cursor — shown only in view state */
+[data-state="view"] .cursor-view-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0D0D0D;
+}
+
+/* ─── Base styles ─────────────────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--canvas);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ─── Scroll reveal utility (for hook-based usage) ────────────────────────── */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(40px);
+  will-change: transform;
+  transition:
+    opacity  500ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-on-scroll.revealed {
+  opacity: 1;
+  transform: none;
+}
+
+/* ─── Respect reduced motion everywhere ───────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration:       0.01ms !important;
+    animation-iteration-count: 1     !important;
+    transition-duration:      0.01ms !important;
+    scroll-behavior:          auto   !important;
+  }
+
+  .reveal-on-scroll {
+    opacity:   1;
+    transform: none;
+    transition: none;
+  }
+}
