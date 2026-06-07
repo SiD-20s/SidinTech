@@ -13,7 +13,7 @@
 
 /* ─── Design token: fonts ─────────────────────────────────────────────────── */
 @theme inline {
-  --font-syne:    var(--font-syne-var),    Syne,            sans-serif;
+  --font-syne:    var(--font-syne-var),    'DM Sans',       sans-serif;
   --font-satoshi: var(--font-satoshi-var), Satoshi,         sans-serif;
   --font-mono:    var(--font-jetbrains-var),'JetBrains Mono',monospace;
 }
@@ -43,6 +43,17 @@
   align-items: center;
   justify-content: center;
   color: #0D0D0D;
+}
+
+/* ─── DM Sans heading letter-spacing ─────────────────────────────────────── */
+/* All extrabold/bold (700+) DM Sans headlines get -3px tracking.
+   Light usage (nav, body via font-syne at weight 300) inherits 0 tracking. */
+.font-syne.font-extrabold,
+.font-syne.font-bold,
+h1.font-syne,
+h2.font-syne,
+h3.font-syne {
+  letter-spacing: -3px;
 }
 
 /* ─── Base styles ─────────────────────────────────────────────────────────── */

@@ -98,7 +98,7 @@ export default function About() {
 
                 {/* Body — Syne 24px, ink, max-width 600px, line-height 1.5 */}
                 <p
-                  className="font-syne text-[24px] text-ink leading-[1.5] max-w-[600px] m-0"
+                  className="font-syne font-light text-[24px] text-ink leading-[1.5] max-w-[600px] m-0"
                 >
                   {panel.body}
                 </p>
@@ -141,7 +141,7 @@ export default function About() {
               {panel.number} — {panel.title.toUpperCase()}
             </span>
 
-            <p className="font-syne text-[18px] text-ink leading-[1.5] max-w-[560px] m-0">
+            <p className="font-syne font-light text-[18px] text-ink leading-[1.5] max-w-[560px] m-0">
               {panel.body}
             </p>
           </div>

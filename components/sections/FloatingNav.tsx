@@ -77,7 +77,7 @@ export default function FloatingNav({ visible, activeSection }: FloatingNavProps
               style={{
                 color: colour ?? 'rgba(13,13,13,0.55)',
                 fontWeight: item.label === 'Sid' ? 700 : 400,
-                fontFamily: item.label === 'Sid' ? 'var(--font-syne-var), Syne, sans-serif' : undefined,
+                fontFamily: item.label === 'Sid' ? 'var(--font-syne-var), "DM Sans", sans-serif' : undefined,
               }}
             >
               {item.label}
