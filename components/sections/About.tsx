@@ -23,19 +23,19 @@ export default function About() {
     if (!panels || !outer) return
 
     const ctx = gsap.context(() => {
+      // Move panels container by (n-1) * 100vw to show all panels.
+      // end distance must match the total xPercent travel: (n-1)/n * totalWidth
+      const panelCount = ABOUT_PANELS.length  // 4
       gsap.to(panels, {
-        xPercent: -75,
+        xPercent: -100 * (panelCount - 1) / panelCount,
         ease: 'none',
         scrollTrigger: {
           trigger: '[data-gsap-about]',
           pin: true,
-          // anticipatePin prevents the section from feeling "stuck" on pin
-          // entry/exit when Lenis hasn't fully caught up to native scroll
           anticipatePin: 1,
-          // scrub: 0.5 instead of 1 — Lenis already adds ~1.2 s of easing,
-          // so a scrub lag of 1 creates ~2 s total lag which feels sluggish
           scrub: 0.5,
-          end: () => '+=' + panels.offsetWidth,
+          // end = (panelCount - 1) screen widths of scroll travel
+          end: () => '+=' + (panelCount - 1) * window.innerWidth,
           invalidateOnRefresh: true,
         },
       })

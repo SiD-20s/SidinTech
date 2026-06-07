@@ -1,43 +1,50 @@
 'use client'
 
 import { useEffect, type ReactNode } from 'react'
-import Lenis from '@studio-freight/lenis'
+import { ReactLenis, useLenis } from 'lenis/react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
-export function LenisProvider({ children }: { children: ReactNode }) {
+/**
+ * Keeps ScrollTrigger in sync with Lenis scroll position and handles
+ * resize events when GSAP adds/removes pinSpacers.
+ */
+function GSAPSyncPlugin() {
+  const lenis = useLenis()
+
+  // Fire ScrollTrigger.update on every Lenis scroll frame
+  useLenis(ScrollTrigger.update)
+
   useEffect(() => {
-    const lenis = new Lenis({
-      duration: 1.2,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-    })
-
-    // Keep ScrollTrigger in sync with Lenis's eased scroll position
-    lenis.on('scroll', ScrollTrigger.update)
-
-    // When GSAP pins a section it inserts a pinSpacer div which changes the
-    // total page height. Lenis was initialised before that — so it needs to
-    // recalculate its scroll limit every time GSAP refreshes its layout.
-    // Without this, Lenis stops at the wrong scroll max and the page feels
-    // stuck or bounces back on pinned sections.
+    if (!lenis) return
+    // When GSAP refreshes (e.g. pinSpacer added), Lenis must recalculate scroll height
     const onRefresh = () => lenis.resize()
     ScrollTrigger.addEventListener('refresh', onRefresh)
-
-    const tickerCallback = (time: number) => {
-      lenis.raf(time * 1000)
-    }
-
-    gsap.ticker.add(tickerCallback)
-    gsap.ticker.lagSmoothing(0)
-
     return () => {
       ScrollTrigger.removeEventListener('refresh', onRefresh)
-      gsap.ticker.remove(tickerCallback)
-      lenis.destroy()
     }
-  }, [])
+  }, [lenis])
 
-  return <>{children}</>
+  return null
+}
+
+export function LenisProvider({ children }: { children: ReactNode }) {
+  return (
+    <ReactLenis
+      root
+      options={{
+        lerp: 0.1,
+        duration: 1.2,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        // autoRaf: true (default) — Lenis drives its own requestAnimationFrame.
+        // We do NOT use GSAP ticker to drive Lenis; instead ScrollTrigger.update
+        // is called via the useLenis scroll callback above.
+      }}
+    >
+      <GSAPSyncPlugin />
+      {children}
+    </ReactLenis>
+  )
 }
