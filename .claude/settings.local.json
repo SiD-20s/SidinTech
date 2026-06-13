@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m 'chore: scaffold Next.js 16 + Tailwind v4 + install dependencies *)",
+      "Bash(git commit -m 'style: configure Tailwind v4 @theme tokens and global base styles *)",
+      "Bash(git commit -m 'feat: root layout with next/font and Lenis smooth scroll provider *)",
+      "Bash(git commit -m 'feat: add animation variants and all site constants *)",
+      "Bash(git commit -m 'feat: add hooks — usePrefersReducedMotion, useScrollReveal, useCustomCursor *)",
+      "Bash(git commit -m 'feat: add UI components — CustomCursor, ScrollReveal, PillarBadge, StackBadge *)",
+      "Bash(git commit -m 'feat: page assembly shell and section stubs *)",
+      "Bash(git commit -m 'feat: build Hero section *)",
+      "Bash(git commit -m 'feat: build Skills section *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(npm run *)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

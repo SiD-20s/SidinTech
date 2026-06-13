@@ -154,44 +154,43 @@ export const QUICK_GRID_PROJECTS = [
   },
 ] as const
 
-export const EXPERIENCE_ENTRIES = [
-  {
-    company: 'Kalaiworks',
-    role: 'Full-stack & AI Engineer',
-    type: 'Full-time · Current',
-    pillarColour: '#00A8FF',
+export const KALAIWORKS_ENTRY = {
+  year: 'Nov 2025\nPresent',
+  company: 'Kalaiworks',
+  intern: {
+    title: 'AI Developer Intern',
+    date: 'Nov 2025 — Apr 2026',
+    badge: 'Intern · Previously',
+    description:
+      'First exposure to real-world performance marketing infrastructure and client delivery. Converted to full-time after 6 months.',
+    learnedTags: 'Automation pipelines · Performance marketing infra · Client delivery workflows · Cross-team communication',
+  },
+  current: {
+    title: 'Full-stack & AI Engineer',
+    date: 'May 2026 — Present',
+    badge: 'Full-time · Current',
     description:
       'Building AI systems, automation pipelines, and creative tools at a performance marketing company. Embedded across engineering, marketing, and creative teams — shipping products that serve all three.',
-    bullets: [
-      'AI-driven asset management system for photoshoot workflows',
-      'Creator discovery automation using Playwright + Meta scraping',
-      'Cross-functional tech support bridging marketing and creative teams',
-    ],
   },
+  arrowSub: '6 months',
+  bullets: [
+    'AI-driven asset management system for photoshoot workflows',
+    'Creator discovery automation using Playwright + Meta scraping',
+    'Cross-functional tech support bridging marketing and creative teams',
+  ],
+} as const
+
+export const EXPERIENCE_ENTRIES = [
   {
-    company: 'Kalaiworks',
-    role: 'AI Developer Intern',
-    type: 'Intern · Previously',
-    pillarColour: '#00A8FF',
-    description:
-      'Started as intern, converted to full-time. First exposure to real-world performance marketing infrastructure and client delivery.',
-    bullets: [],
-  },
-  {
-    company: 'YI Yuva (CII)',
+    year: '2022 — 2023',
+    company: 'YIYuva (CII)',
     role: 'Chairperson, Entrepreneurship Vertical',
     type: 'Leadership',
-    pillarColour: '#FF6B6B',
+    badgeColour: '#9B6DFF',
     description:
-      'Led the entrepreneurship vertical at Young Indians — the youth wing of the Confederation of Indian Industry. Operated at the intersection of business, startups, and technology.',
+      'Led the entrepreneurship vertical — organizing workshops, startup pitches, and innovation events across Coimbatore chapter.',
     bullets: [],
   },
-] as const
-
-export const GITHUB_STATS = [
-  { value: '603', label: 'contributions last year' },
-  { value: '95%', label: 'commits' },
-  { value: '2', label: 'AI products shipped' },
 ] as const
 
 export const SKILL_GROUPS = [

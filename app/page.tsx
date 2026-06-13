@@ -5,14 +5,16 @@ import BootSequence from '@/components/sections/BootSequence'
 import FloatingNav from '@/components/sections/FloatingNav'
 import Hero from '@/components/sections/Hero'
 import IdentityCards from '@/components/sections/IdentityCards'
+import HeroicProject from '@/components/sections/HeroicProject'
 import Projects from '@/components/sections/Projects'
 import Experience from '@/components/sections/Experience'
+import GitHubStats from '@/components/sections/GitHubStats'
 import Skills from '@/components/sections/Skills'
 import About from '@/components/sections/About'
 import Contact from '@/components/sections/Contact'
 import CustomCursor from '@/components/ui/CustomCursor'
 
-const SECTIONS = ['hero', 'identity', 'work', 'experience', 'skills', 'about', 'contact']
+const SECTIONS = ['hero', 'identity', 'work', 'experience', 'github', 'skills', 'about', 'contact']
 
 export default function Page() {
   const [introComplete, setIntroComplete] = useState(false)
@@ -44,10 +46,13 @@ export default function Page() {
       {introComplete && (
         <main>
           <FloatingNav visible={introComplete} activeSection={activeSection} />
+
           <Hero />
           <IdentityCards />
+          <HeroicProject />
           <Projects />
           <Experience />
+          <GitHubStats />
           <Skills />
           <About />
           <Contact />
