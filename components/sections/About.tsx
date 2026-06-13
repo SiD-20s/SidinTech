@@ -23,18 +23,19 @@ export default function About() {
     if (!panels || !outer) return
 
     const ctx = gsap.context(() => {
-      // Move panels container by (n-1) * 100vw to show all panels.
-      // end distance must match the total xPercent travel: (n-1)/n * totalWidth
       const panelCount = ABOUT_PANELS.length  // 4
       gsap.to(panels, {
         xPercent: -100 * (panelCount - 1) / panelCount,
         ease: 'none',
         scrollTrigger: {
-          trigger: '[data-gsap-about]',
-          pin: true,
-          anticipatePin: 1,
+          trigger: outer,
+          pin: outer,
+          // pinSpacing: false — we own the scroll height via the outer wrapper's
+          // explicit height (100vh + 3*100vw set in JSX). Without this, GSAP adds
+          // a pinSpacer that doubles the scroll distance and creates a blank gap.
+          pinSpacing: false,
           scrub: 0.5,
-          // end = (panelCount - 1) screen widths of scroll travel
+          start: 'top top',
           end: () => '+=' + (panelCount - 1) * window.innerWidth,
           invalidateOnRefresh: true,
         },
@@ -53,6 +54,7 @@ export default function About() {
         className="hidden md:block relative"
         data-gsap-about="true"
         aria-label="About Siddharth"
+        style={{ height: 'calc(100vh + 300vw)' }}
       >
         {/* Section header — sits above the sticky container */}
         <div className="px-16 lg:px-24 pt-24 pb-8 absolute top-0 left-0 z-10 pointer-events-none">

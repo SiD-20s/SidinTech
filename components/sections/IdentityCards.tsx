@@ -37,21 +37,29 @@ export default function IdentityCards() {
     const cards = gsap.utils.toArray<HTMLElement>('.identity-card')
     const triggers: ScrollTrigger[] = []
 
-    cards.forEach((card, index) => {
-      if (index === cards.length - 1) return      // last card stays
+    // z-index: card[0]=z-10 (bottom) … card[4]=z-50 (top).
+    // Peel order: card[4] slides away first, then card[3], card[2], card[1].
+    // card[0] (TECH) stays and is the final revealed card.
+    // animIndex 0 = first peel (card[4]), animIndex 3 = last peel (card[1]).
+    const peelOrder = [
+      cards[cards.length - 1], // card 4 — BUSINESS (top, peels first)
+      cards[cards.length - 2], // card 3 — PRODUCT
+      cards[cards.length - 3], // card 2 — DESIGN
+      cards[cards.length - 4], // card 1 — FINANCE
+      // card 0 — TECH stays (bottom, never animated)
+    ]
 
+    peelOrder.forEach((card, animIndex) => {
       const st = ScrollTrigger.create({
         trigger: '#identity',
-        start: `${index * 20}% top`,
-        end: `${(index + 1) * 20}% top`,
+        start: `${animIndex * 20}% top`,
+        end: `${(animIndex + 1) * 20}% top`,
         scrub: true,
-        // Recalculate trigger positions if GSAP refreshes its layout
-        // (e.g., when About's pinSpacer is added/removed)
         invalidateOnRefresh: true,
         onUpdate(self) {
           gsap.set(card, {
-            yPercent: -100 * self.progress,
-            opacity: 1 - self.progress,
+            yPercent: 100 * self.progress,
+            opacity: 1 - self.progress * 0.3,
           })
         },
       })
@@ -78,7 +86,9 @@ export default function IdentityCards() {
         >
           {IDENTITY_CARDS.map((card, index) => {
             const colour = PILLAR_COLOURS[card.pillar]
-            const zClasses = ['z-50', 'z-40', 'z-30', 'z-20', 'z-10']
+            // Last card sits on top (z-50), first card at bottom (z-10).
+            // Each card peels downward to reveal the one beneath it.
+            const zClasses = ['z-10', 'z-20', 'z-30', 'z-40', 'z-50']
 
             return (
               <div
