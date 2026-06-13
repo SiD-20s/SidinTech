@@ -56,66 +56,21 @@ export default function Skills() {
   const cellRefs = useRef<HTMLDivElement[]>([])
 
   const activeTl = useRef<gsap.core.Timeline | null>(null)
-  const settledRef = useRef(false)
 
   useEffect(() => {
     const section = sectionRef.current
-    if (!section || prefersReduced) return
+    const grid = gridRef.current
+    if (!section || !grid || prefersReduced) return
 
     const letters = letterRefs.current
     const faint = faintRef.current
     const label = labelRef.current
-    const grid = gridRef.current
 
-    const resetState = () => {
-      gsap.set(letters, { y: '-110%', opacity: 1 })
-      gsap.set(faint, { opacity: 0 })
-      gsap.set(label, { opacity: 0 })
-      gsap.set(grid, { opacity: 0 })
-      gsap.set(cellRefs.current, { opacity: 0, y: 16 })
-
-      cellRefs.current.forEach((cell) => {
-        if (!cell) return
-        gsap.set(cell.querySelector('.cell-cat'), { opacity: 0, x: -10 })
-        gsap.set(cell.querySelector('.cell-motto'), { opacity: 0, clipPath: 'inset(0 100% 0 0)' })
-        gsap.set(cell.querySelectorAll('.cell-tag'), { opacity: 0, y: 6 })
-        gsap.set(cell.querySelector('.cell-num'), { opacity: 0 })
-      })
-
-      settledRef.current = false
-    }
-
-    const snapToSettled = () => {
-      gsap.set(letters, { y: '110%', opacity: 0 })
-      gsap.set(faint, { opacity: 0.065 })
-      gsap.set(label, { opacity: 1 })
-      gsap.set(grid, { opacity: 1 })
-      gsap.set(cellRefs.current, { opacity: 1, y: 0 })
-
-      cellRefs.current.forEach((cell) => {
-        if (!cell) return
-        gsap.set(cell.querySelector('.cell-cat'), { opacity: 1, x: 0 })
-        gsap.set(cell.querySelector('.cell-motto'), { opacity: 1, clipPath: 'inset(0 0% 0 0)' })
-        gsap.set(cell.querySelectorAll('.cell-tag'), { opacity: 1, y: 0 })
-        gsap.set(cell.querySelector('.cell-num'), { opacity: 0.055 })
-      })
-
-      settledRef.current = true
-    }
-
-    const buildTimeline = () => {
-      const tl = gsap.timeline({
-        paused: true,
-        onComplete: () => {
-          settledRef.current = true
-        },
-      })
-
-      // Section label fades in
-      tl.to(label, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0)
+    const buildLetterTimeline = () => {
+      const tl = gsap.timeline({ paused: true })
 
       // Letters drop in one by one
-      tl.to(letters, { y: '0%', duration: 0.6, stagger: 0.07, ease: 'power3.out' }, 0.1)
+      tl.to(letters, { y: '0%', duration: 0.6, stagger: 0.07, ease: 'power3.out' }, 0)
 
       // Hold bright
       tl.to({}, { duration: 0.9 })
@@ -129,60 +84,102 @@ export default function Skills() {
         ease: 'power2.in',
       })
 
-      // Faint settled version fades in as letters burn out
-      tl.to(faint, { opacity: 0.065, duration: 0.6, ease: 'power2.out' }, '-=0.35')
-
-      // Grid fades in
-      tl.to(grid, { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.5')
-
-      // Cells stagger up
-      tl.to(cellRefs.current, { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out' }, '-=0.4')
-
-      // Cell internals
-      cellRefs.current.forEach((cell, i) => {
-        if (!cell) return
-        const d = tl.duration() - 0.6 + i * 0.09
-
-        tl.to(cell.querySelector('.cell-num'), { opacity: 0.055, duration: 0.5, ease: 'power2.out' }, d)
-        tl.to(cell.querySelector('.cell-cat'), { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }, d + 0.05)
-        tl.to(
-          cell.querySelector('.cell-motto'),
-          { opacity: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.6, ease: 'power3.out' },
-          d + 0.1
-        )
-        tl.to(
-          cell.querySelectorAll('.cell-tag'),
-          { opacity: 1, y: 0, duration: 0.3, stagger: 0.03, ease: 'power2.out' },
-          d + 0.22
-        )
-      })
+      // Faint settled version fades in and drifts down into position as letters burn out
+      tl.fromTo(
+        faint,
+        { opacity: 0, y: -10 },
+        { opacity: 0.065, y: 0, duration: 0.7, ease: 'power2.out' },
+        '-=0.3'
+      )
 
       return tl
     }
 
     const ctx = gsap.context(() => {
-      resetState()
+      // Letters start hidden above
+      gsap.set(letters, { y: '-110%', opacity: 1 })
+      gsap.set(faint, { opacity: 0, y: -10 })
+      gsap.set(label, { opacity: 0 })
 
+      // Grid starts hidden but triggers independently
+      gsap.set(grid, { opacity: 0 })
+      gsap.set(cellRefs.current, { opacity: 0, y: 12 })
+      cellRefs.current.forEach((cell) => {
+        if (!cell) return
+        gsap.set(cell.querySelector('.cell-cat'), { opacity: 0, x: -10 })
+        gsap.set(cell.querySelector('.cell-motto'), { opacity: 0, clipPath: 'inset(0 100% 0 0)' })
+        gsap.set(cell.querySelectorAll('.cell-tag'), { opacity: 0, y: 6 })
+        gsap.set(cell.querySelector('.cell-num'), { opacity: 0 })
+      })
+
+      // ST1 — letter animation only, cosmetic, independent of grid
       ScrollTrigger.create({
         trigger: section,
         start: 'top 80%',
-        end: 'bottom 20%',
         onEnter: () => {
-          if (settledRef.current) return
           if (activeTl.current) activeTl.current.kill()
-          activeTl.current = buildTimeline()
+          activeTl.current = buildLetterTimeline()
           activeTl.current.play()
         },
-        onLeaveBack: () => {
-          if (activeTl.current) activeTl.current.kill()
-          resetState()
-        },
         onLeave: () => {
+          // Fast scroll — snap letters out, show faint
           if (activeTl.current) activeTl.current.kill()
-          snapToSettled()
+          gsap.set(letters, { y: '110%', opacity: 0 })
+          gsap.set(faint, { opacity: 0.065, y: 0 })
         },
-        onEnterBack: () => {
-          // Already settled — no replay needed
+        onLeaveBack: () => {
+          // Scrolled back up — reset letters only
+          if (activeTl.current) activeTl.current.kill()
+          gsap.set(letters, { y: '-110%', opacity: 1 })
+          gsap.set(faint, { opacity: 0, y: -10 })
+        },
+      })
+
+      // Section label fades in alongside the grid — independent of letters
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 80%',
+        once: true,
+        onEnter: () => {
+          gsap.to(label, { opacity: 1, duration: 0.4, ease: 'power2.out' })
+        },
+      })
+
+      // ST2 — grid entrance, completely independent of letter animation
+      ScrollTrigger.create({
+        trigger: grid,
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to(grid, { opacity: 1, duration: 0.5, ease: 'power2.out' })
+          gsap.to(cellRefs.current, {
+            opacity: 1,
+            y: 0,
+            duration: 0.45,
+            stagger: 0.07,
+            ease: 'power2.out',
+          })
+
+          cellRefs.current.forEach((cell, i) => {
+            if (!cell) return
+            const delay = i * 0.09
+
+            gsap.to(cell.querySelector('.cell-num'), {
+              opacity: 0.055, duration: 0.5, delay, ease: 'power2.out',
+            })
+            gsap.to(cell.querySelector('.cell-cat'), {
+              opacity: 1, x: 0, duration: 0.4, delay: delay + 0.05, ease: 'power2.out',
+            })
+            gsap.to(cell.querySelector('.cell-motto'), {
+              opacity: 1, clipPath: 'inset(0 0% 0 0)',
+              duration: 0.6, delay: delay + 0.1, ease: 'power3.out',
+            })
+            gsap.to(cell.querySelectorAll('.cell-tag'), {
+              opacity: 1, y: 0,
+              duration: 0.3, delay: delay + 0.22,
+              stagger: 0.03, ease: 'power2.out',
+            })
+          })
         },
       })
     }, section)
@@ -248,7 +245,8 @@ export default function Skills() {
           style={{
             position: 'absolute',
             left: '-6px',
-            top: '36px',
+            top: 'auto',
+            bottom: '-16px',
             fontSize: 'clamp(100px, 16vw, 180px)',
             fontWeight: 800,
             color: 'rgba(26,26,46,1)',
