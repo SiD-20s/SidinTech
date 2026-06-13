@@ -49,145 +49,237 @@ export default function Skills() {
   const prefersReduced = usePrefersReducedMotion()
   const sectionRef = useRef<HTMLElement>(null)
   const labelRef = useRef<HTMLDivElement>(null)
-  const wmRef = useRef<HTMLDivElement>(null)
+  const lettersWrapRef = useRef<HTMLDivElement>(null)
+  const letterRefs = useRef<HTMLDivElement[]>([])
+  const faintRef = useRef<HTMLDivElement>(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const cellRefs = useRef<HTMLDivElement[]>([])
 
+  const activeTl = useRef<gsap.core.Timeline | null>(null)
+  const settledRef = useRef(false)
+
   useEffect(() => {
     const section = sectionRef.current
-    const wm = wmRef.current
-    if (!section || !wm || prefersReduced) return
+    if (!section || prefersReduced) return
 
-    const ctx = gsap.context(() => {
-      // Watermark — resting at right edge, off-screen to the right initially
-      gsap.set(wm, { x: 300, opacity: 0 })
+    const letters = letterRefs.current
+    const faint = faintRef.current
+    const label = labelRef.current
+    const grid = gridRef.current
 
-      gsap.set(gridRef.current, { opacity: 0 })
-      gsap.set(labelRef.current, { opacity: 0 })
+    const resetState = () => {
+      gsap.set(letters, { y: '-110%', opacity: 1 })
+      gsap.set(faint, { opacity: 0 })
+      gsap.set(label, { opacity: 0 })
+      gsap.set(grid, { opacity: 0 })
       gsap.set(cellRefs.current, { opacity: 0, y: 16 })
 
       cellRefs.current.forEach((cell) => {
         if (!cell) return
-        gsap.set(cell.querySelector('.cell-num'), { opacity: 0 })
         gsap.set(cell.querySelector('.cell-cat'), { opacity: 0, x: -10 })
         gsap.set(cell.querySelector('.cell-motto'), { opacity: 0, clipPath: 'inset(0 100% 0 0)' })
         gsap.set(cell.querySelectorAll('.cell-tag'), { opacity: 0, y: 6 })
+        gsap.set(cell.querySelector('.cell-num'), { opacity: 0 })
       })
 
-      // Watermark entrance: slide in from right, then breathe out to resting opacity
-      const wmTl = gsap.timeline({ paused: true })
-      wmTl
-        .fromTo(wm, { x: 300, opacity: 0 }, { x: 0, opacity: 0.18, duration: 1.0, ease: 'power3.out' })
-        .to(wm, { opacity: 0.055, duration: 0.8, ease: 'power2.inOut' })
+      settledRef.current = false
+    }
 
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top 70%',
-        end: 'bottom 20%',
-        onEnter: () => wmTl.play(),
-        onLeaveBack: () => wmTl.reverse(),
+    const snapToSettled = () => {
+      gsap.set(letters, { y: '110%', opacity: 0 })
+      gsap.set(faint, { opacity: 0.065 })
+      gsap.set(label, { opacity: 1 })
+      gsap.set(grid, { opacity: 1 })
+      gsap.set(cellRefs.current, { opacity: 1, y: 0 })
+
+      cellRefs.current.forEach((cell) => {
+        if (!cell) return
+        gsap.set(cell.querySelector('.cell-cat'), { opacity: 1, x: 0 })
+        gsap.set(cell.querySelector('.cell-motto'), { opacity: 1, clipPath: 'inset(0 0% 0 0)' })
+        gsap.set(cell.querySelectorAll('.cell-tag'), { opacity: 1, y: 0 })
+        gsap.set(cell.querySelector('.cell-num'), { opacity: 0.055 })
       })
 
-      // Slow leftward parallax drift as user scrolls through section
-      gsap.to(wm, {
-        x: -30,
-        ease: 'none',
-        scrollTrigger: {
-          trigger: section,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: 1,
-        },
-      })
+      settledRef.current = true
+    }
 
-      // Content entrance: label, grid, cells
+    const buildTimeline = () => {
       const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: section,
-          start: 'top 75%',
-          once: true,
+        paused: true,
+        onComplete: () => {
+          settledRef.current = true
         },
       })
 
       // Section label fades in
-      tl.to(labelRef.current, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0)
+      tl.to(label, { opacity: 1, duration: 0.4, ease: 'power2.out' }, 0)
+
+      // Letters drop in one by one
+      tl.to(letters, { y: '0%', duration: 0.6, stagger: 0.07, ease: 'power3.out' }, 0.1)
+
+      // Hold bright
+      tl.to({}, { duration: 0.9 })
+
+      // Burn out — letters drop down and out, reverse stagger
+      tl.to(letters, {
+        y: '110%',
+        opacity: 0,
+        duration: 0.5,
+        stagger: { each: 0.05, from: 'end' },
+        ease: 'power2.in',
+      })
+
+      // Faint settled version fades in as letters burn out
+      tl.to(faint, { opacity: 0.065, duration: 0.6, ease: 'power2.out' }, '-=0.35')
 
       // Grid fades in
-      tl.to(gridRef.current, { opacity: 1, duration: 0.5, ease: 'power2.out' }, 0.1)
+      tl.to(grid, { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.5')
 
       // Cells stagger up
-      tl.to(
-        cellRefs.current,
-        { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out' },
-        0.2
-      )
+      tl.to(cellRefs.current, { opacity: 1, y: 0, duration: 0.45, stagger: 0.07, ease: 'power2.out' }, '-=0.4')
 
-      // Inside each cell — cat slides, motto wipes, tags stagger
+      // Cell internals
       cellRefs.current.forEach((cell, i) => {
         if (!cell) return
-        const delay = 0.25 + i * 0.09
+        const d = tl.duration() - 0.6 + i * 0.09
 
-        tl.to(cell.querySelector('.cell-num'), { opacity: 0.055, duration: 0.5, ease: 'power2.out' }, delay)
-        tl.to(cell.querySelector('.cell-cat'), { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }, delay + 0.05)
+        tl.to(cell.querySelector('.cell-num'), { opacity: 0.055, duration: 0.5, ease: 'power2.out' }, d)
+        tl.to(cell.querySelector('.cell-cat'), { opacity: 1, x: 0, duration: 0.4, ease: 'power2.out' }, d + 0.05)
         tl.to(
           cell.querySelector('.cell-motto'),
           { opacity: 1, clipPath: 'inset(0 0% 0 0)', duration: 0.6, ease: 'power3.out' },
-          delay + 0.1
+          d + 0.1
         )
         tl.to(
           cell.querySelectorAll('.cell-tag'),
           { opacity: 1, y: 0, duration: 0.3, stagger: 0.03, ease: 'power2.out' },
-          delay + 0.22
+          d + 0.22
         )
+      })
+
+      return tl
+    }
+
+    const ctx = gsap.context(() => {
+      resetState()
+
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top 80%',
+        end: 'bottom 20%',
+        onEnter: () => {
+          if (settledRef.current) return
+          if (activeTl.current) activeTl.current.kill()
+          activeTl.current = buildTimeline()
+          activeTl.current.play()
+        },
+        onLeaveBack: () => {
+          if (activeTl.current) activeTl.current.kill()
+          resetState()
+        },
+        onLeave: () => {
+          if (activeTl.current) activeTl.current.kill()
+          snapToSettled()
+        },
+        onEnterBack: () => {
+          // Already settled — no replay needed
+        },
       })
     }, section)
 
-    return () => ctx.revert()
+    return () => {
+      if (activeTl.current) activeTl.current.kill()
+      ctx.revert()
+    }
   }, [prefersReduced])
 
   return (
     <section
       ref={sectionRef}
       id="skills"
-      className="relative overflow-hidden px-6 md:px-16 lg:px-24 py-24 md:py-32"
-      style={{ background: '#F0F1F5' }}
+      className="relative px-6 md:px-16 lg:px-24 py-24 md:py-32"
+      style={{ background: '#F0F1F5', overflow: 'visible', position: 'relative' }}
     >
-      {/* Watermark */}
-      <div
-        ref={wmRef}
-        aria-hidden="true"
-        className="hidden md:block font-syne font-extrabold absolute pointer-events-none select-none"
-        style={{
-          right: '-10px',
-          top: '40px',
-          fontSize: 'clamp(80px, 14vw, 150px)',
-          fontWeight: 800,
-          color: 'rgba(26,26,46,1)',
-          whiteSpace: 'nowrap',
-          letterSpacing: '-0.02em',
-          willChange: 'transform, opacity',
-          opacity: prefersReduced ? 0.055 : 0,
-          zIndex: 0,
-          pointerEvents: 'none',
-        }}
-      >
-        SKILLS
-      </div>
+      {/* Zone A — section label + watermark */}
+      <div className="relative" style={{ height: '200px' }}>
+        {/* Letter wrapper — each letter drops in/out individually */}
+        <div
+          ref={lettersWrapRef}
+          aria-hidden="true"
+          className="hidden md:flex font-syne font-extrabold"
+          style={{
+            alignItems: 'flex-end',
+            position: 'absolute',
+            left: '-6px',
+            top: '36px',
+            zIndex: 1,
+            overflow: 'visible',
+          }}
+        >
+          {'SKILLS'.split('').map((letter, i) => (
+            <div key={i} style={{ overflow: 'hidden', display: 'inline-block' }}>
+              <div
+                ref={(el) => {
+                  if (el) letterRefs.current[i] = el
+                }}
+                style={{
+                  fontSize: 'clamp(100px, 16vw, 180px)',
+                  fontWeight: 800,
+                  color: '#1A1A2E',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1,
+                  display: 'inline-block',
+                  transform: prefersReduced ? 'translateY(0)' : 'translateY(-110%)',
+                  opacity: prefersReduced ? 0 : 1,
+                  willChange: 'transform, opacity',
+                }}
+              >
+                {letter}
+              </div>
+            </div>
+          ))}
+        </div>
 
-      {/* Section label */}
-      <div
-        ref={labelRef}
-        className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink/35 relative z-[1]"
-        style={{ marginBottom: '28px', willChange: 'opacity', opacity: prefersReduced ? 1 : 0 }}
-      >
-        06 — Skills
+        {/* Faint settled version — always present, opacity controlled by GSAP */}
+        <div
+          ref={faintRef}
+          aria-hidden="true"
+          className="hidden md:block font-syne font-extrabold"
+          style={{
+            position: 'absolute',
+            left: '-6px',
+            top: '36px',
+            fontSize: 'clamp(100px, 16vw, 180px)',
+            fontWeight: 800,
+            color: 'rgba(26,26,46,1)',
+            letterSpacing: '-0.02em',
+            lineHeight: 1,
+            whiteSpace: 'nowrap',
+            opacity: prefersReduced ? 0.065 : 0,
+            pointerEvents: 'none',
+            userSelect: 'none',
+            zIndex: 0,
+            willChange: 'opacity',
+          }}
+        >
+          SKILLS
+        </div>
+
+        {/* Section label */}
+        <div
+          ref={labelRef}
+          className="font-mono text-[11px] uppercase tracking-[0.1em] text-ink/35 relative z-[1]"
+          style={{ marginBottom: '28px', willChange: 'opacity', opacity: prefersReduced ? 1 : 0 }}
+        >
+          06 — Skills
+        </div>
       </div>
 
       {/* Grid */}
       <div
         ref={gridRef}
-        className="grid grid-cols-1 md:grid-cols-2 relative z-[1] rounded-[14px] overflow-hidden"
-        style={{ gap: '1px', background: 'rgba(13,13,13,0.1)', border: '1px solid rgba(13,13,13,0.1)', willChange: 'opacity', opacity: prefersReduced ? 1 : 0 }}
+        className="grid grid-cols-1 md:grid-cols-2 relative rounded-[14px] overflow-hidden"
+        style={{ zIndex: 2, gap: '1px', background: 'rgba(13,13,13,0.1)', border: '1px solid rgba(13,13,13,0.1)', willChange: 'opacity', opacity: prefersReduced ? 1 : 0 }}
       >
         {SKILLS.map((s, i) => {
           const isWide = i === 4
@@ -203,7 +295,7 @@ export default function Skills() {
                   : ''
               }`}
               style={{
-                background: 'rgba(240,241,245,0.85)',
+                background: 'rgba(240,241,245,0.97)',
                 padding: isWide ? '28px 32px' : '24px 22px 20px',
                 minHeight: isWide ? '100px' : '200px',
               }}
@@ -212,7 +304,7 @@ export default function Skills() {
                 ;(e.currentTarget as HTMLElement).style.background = `${s.color}15`
               }}
               onMouseLeave={(e) => {
-                ;(e.currentTarget as HTMLElement).style.background = 'rgba(240,241,245,0.85)'
+                ;(e.currentTarget as HTMLElement).style.background = 'rgba(240,241,245,0.97)'
               }}
             >
               {/* Background number */}
